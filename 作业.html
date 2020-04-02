@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>封装dom</title>
+    <style>
+        .red{
+            background:burlywood;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="test">
+        <span>test</span>
+        <p class="red">段落</p>
+    </div>
+
+    <div id="test2">
+        <span>test2</span>
+        <p class="red">段落2</p>
+    </div>
+
+    <div id="test3">
+        <span>test3</span>
+        <p class="red">段落3</p>
+    </div>
+
+
+
+
+    <script>
+
+        window.dom = {
+
+            style(node,name,value){
+                if(arguments.length===3){
+                    node.style[name]=value
+                }else if(arguments.length===2){
+                    if(typeof name === 'string'){
+                        return node.style[name]
+                    }else if(name instanceof Object){
+                        const object =name
+                        for(let key in object){
+                            node.style[key] = object[key]
+                        }
+                    }
+                }
+            },
+            find(selector, scope){
+                return (scope || document).querySelectorAll(selector)
+            },
+            each(nodeList, fn){
+                for(let i=0;i<nodeList.length;i++){
+                    fn.call(null, nodeList[i])
+                }
+            }
+
+
+        }
+
+
+
+
+        const div = dom.find('#test>.red')[0] // 获取对应的元素
+        dom.style(div, 'color', 'red') // 设置 div.style.color
+
+
+        const divList = dom.find('.red') // 获取多个 div.red 元素
+        dom.each(divList, (n)=> console.log(n)) // 遍历 divList 里的所有元素
+
+
+    </script>
+
+
+
+</body>
+</html>

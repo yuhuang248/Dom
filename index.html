@@ -5,17 +5,17 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>封装dom</title>
+    <title>iiiii</title>
     <style>
         .red{
-            background:burlywood;
+            background:red;
         }
     </style>
 </head>
 <body>
 
     <div id="test">
-        <span>test</span>
+        <span>test1</span>
         <p class="red">段落</p>
     </div>
 
@@ -24,9 +24,25 @@
         <p class="red">段落2</p>
     </div>
 
-    <div id="test3">
-        <span>test3</span>
-        <p class="red">段落3</p>
+
+
+    <div id="qq">
+        <div id="ww"></div>
+        <div id="ee"></div>
+        <div id="rr"></div>
+    </div>
+
+
+    <div id="siblings">
+        <div id="s1"></div>
+        <div id="s2"></div>
+        <div id="s3"></div>
+    </div>
+
+    <div id="travel">
+        <div id="t1">t1</div>
+        <div id="t2">t2</div>
+        <div id="t3">t3</div>
     </div>
 
 
@@ -35,8 +51,74 @@
     <script>
 
         window.dom = {
+            create(string){
+                const container = document.createElement("template")
+                container.innerHTML = string.trim();
+                return container.content.firstChild 
+            },
+            after(node,node2){
+                console.log(node.nextSibling)
+                node.parentNode.insertBefore(node2,node.nextSibling)
+            },
+            before(node,node2){
+                console.log(node2)
+                node.parentNode.insertBefore(node2,node)
+            },
+            append(parent,node){
+                parent.appendChild(node)
+            },
+            wrap(node,parent){
+                dom.before(node,parent)
+                dom.append(parent,node)
+            },
+            remove(node){
+                node.parentNode.removeChild(node)
+                return node
+            },
+            empty(node){
 
+                // const childNodes = node.childNodes
+                const {childNodes} = node
+                const array = []
+                let x = node.firstChild
+                while(x){
+                    array.push(dom.remove(node.firstChild))
+                    x = node.firstChild
+                }
+                return array
+            },
+            attr(node,name,value){
+                if(arguments.length === 3){
+                    return node.setAttribute(name,value)
+                }else if(arguments.length === 2){
+                    return node.getAttribute(name)
+                }
+
+            },
+            text(node,string){
+                if(arguments.length ===2){
+                    if('innerText' in node){
+                        node.innerText = string
+                    }else{
+                        node.textContent = string
+                    }
+                }else if (arguments.length === 1){
+                    if('innerText' in node){
+                        return node.innerText
+                    }else{
+                        return node.textContent
+                    }
+                }
+            },
+            html(node,string){
+                if(arguments.length ===2){
+                    node.innerHTML = string
+                }else if(arguments.length ===1){
+                    return node.innerHTML
+                }
+            },
             style(node,name,value){
+
                 if(arguments.length===3){
                     node.style[name]=value
                 }else if(arguments.length===2){
@@ -50,28 +132,111 @@
                     }
                 }
             },
+            class:{
+                add(node,className){
+                    node.classList.add(className)
+                },
+                remove(node,className){
+                    node.classList.remove(className)
+                },
+                has(node,className){
+                    return node.classList.contains(className)
+                }
+            },
+            on(node,eventName,fn){
+                node.addEventListener(eventName,fn)
+            },
+            off(node,eventName,fn){
+                node.removeEventListener(eventName,fn)
+            },
             find(selector, scope){
                 return (scope || document).querySelectorAll(selector)
+            },
+            parent(node){
+                return node.parentNode
+            },
+            children(node){
+                return node.children
+            },
+            siblings(node){
+                return Array.from(node.parentNode.children).filter(n=>n!==node)
+            },
+            next(node){
+                let x = node.nextSibling
+                // 等于3 就是文本 nodeType
+                while(x && x.nodeType === 3){
+                    x = x.nextSibling
+                }
+                return x
+            },
+            previous(node){
+                let x = node.previousSibling
+                while(x && x.nodeType ===3){
+                    x = x.previousSibling
+                }
+                return x
             },
             each(nodeList, fn){
                 for(let i=0;i<nodeList.length;i++){
                     fn.call(null, nodeList[i])
                 }
+            },
+            index(node) {
+                const list = dom.children(node.parentNode)
+                let i
+                for (i = 0; i < list.length; i++) {
+                    if (list[i] === node) {
+                        break
+                    }
+                }
+                return i
             }
-
-
         }
 
 
+        const div = dom.create("<div>after就是跑到之后</div>")
 
 
-        const div = dom.find('#test>.red')[0] // 获取对应的元素
-        dom.style(div, 'color', 'red') // 设置 div.style.color
+        dom.empty(qq)
+
+        dom.attr(test,'title','Hiii')
+        const title = dom.attr(test,'title')
+        console.log(`title: ${title}`)
 
 
-        const divList = dom.find('.red') // 获取多个 div.red 元素
-        dom.each(divList, (n)=> console.log(n)) // 遍历 divList 里的所有元素
+        dom.text(test,'你好，这个是新内容')
 
+
+        dom.style(test,{border:'1px solid red',color:'bule'})
+        dom.style(test,'border')
+        dom.style(test,'border','1px solid black')
+
+
+        // dom.class.add(test,'red')
+        // dom.class.add(test,'blue')
+        // dom.class.remove(test,'blue')
+        // console.log(dom.class.has(test,'blue'))
+
+        const fn = ()=>{
+            console.log('点击了')
+        }
+        dom.on(test,'click',fn)
+        dom.off(test,'click',fn)
+
+        const testDiv = dom.find('#test')[0]
+        console.log(testDiv)
+        const test2 = dom.find('#test2')[0]
+        console.log(dom.find('.red',test2)[0])
+
+        const s2 = dom.find('#s2')[0]
+        console.log(dom.siblings(s2))
+        console.log(dom.next(s2))
+        console.log(dom.previous(s2))
+
+        const t = dom.find('#travel')[0]
+        dom.each(dom.children(t), (n)=> dom.style(n, 'color', 'red'))
+
+        console.log(dom.index(s2))
 
     </script>
 
